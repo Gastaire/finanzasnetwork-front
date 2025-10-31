@@ -27,10 +27,16 @@ function Login() {
     formData.append('password', password);
 
     try {
+      // --- ANTES ---
+      // const response = await axios.post(
+      //   'http://localhost:8000/api/v1/login',
+      // ...
+
+      // --- DESPUÉS (CORREGIDO) ---
       const response = await axios.post(
-        'http://localhost:8000/api/v1/login',
+        'http://localhost:8000/api/v1/auth/login', // <-- URL CORREGIDA
         formData,
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+        { headers: { 'Content-Type': 'application/x-form-urlencoded' } }
       );
 
       localStorage.setItem('accessToken', response.data.access_token);
@@ -39,7 +45,12 @@ function Login() {
       if (err.response && err.response.status === 401) {
         setError('Email o contraseña incorrectos.');
       } else {
-        setError('Error al conectar con el servidor.');
+        // Ahora podemos diferenciar el 404 de otros errores
+        if (err.response && err.response.status === 404) {
+             setError('Error: No se encontró el endpoint de login. Contacta al administrador.');
+        } else {
+            setError('Error al conectar con el servidor.');
+        }
       }
     }
   };
